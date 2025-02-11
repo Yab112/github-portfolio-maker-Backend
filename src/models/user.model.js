@@ -3,7 +3,7 @@ import { generateHash,comparePassword } from "../utils/passwordUtils.js";
 
 const userSchema = new mongoose.Schema(
   {
-    username: { type: String, required: true, unique: true },
+    username: { type: String, required: false, unique: false },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     profilePic: { type: String, default: "" },
