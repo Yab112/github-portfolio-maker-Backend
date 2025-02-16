@@ -5,10 +5,10 @@ import { rateLimiter } from '../middleware/rate-limiter.middleware.js';
 const router = express.Router();
 
 router.post('/register', rateLimiter, authController.register);
-router.post('/verify-email/:userId', authController.verifyEmail);
+router.post('/verify', authController.verifyEmail);
 router.post('/login', rateLimiter, authController.login);
 router.post('/refresh-token',rateLimiter, authController.refreshToken);
 router.post('/logout', authController.logout);
-router.post('/resend-otp/:userId', authController.resendOTP);
+router.post('/resend-otp', authController.resendOTP);
 
 export default router;

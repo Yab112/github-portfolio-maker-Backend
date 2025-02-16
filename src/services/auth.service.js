@@ -25,20 +25,21 @@ export const authService = {
       throw new Error('Invalid credentials');
     }
     if (!user.isVerified) throw new Error('Email not verified');
+    console.log(user)
     return user;
   },
 
   setAuthCookies: (res, accessToken, refreshToken) => {
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === "production" ? true : false,
       sameSite: 'Strict',
       maxAge: 15 * 60 * 1000 // 15 minutes
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === "production" ? true : false,
       sameSite: 'Strict',
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });

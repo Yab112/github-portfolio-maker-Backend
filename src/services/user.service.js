@@ -28,16 +28,24 @@ export const userService = {
     return otp;
   },
 
-  verifyEmail: async (userId, otp) => {
+  verifyEmail: async (otp, userId) => {
+    if (!userId) {
+      throw new Error("User ID not found in cookies");
+    }
+
     const user = await User.findById(userId);
+    console.log("DEBUG user found yes yes yes *****",user)
     if (!user || !(await comparePassword(otp, user.otp))) {
       throw new Error('Invalid OTP');
     }
+
     user.isVerified = true;
     user.otp = undefined;
     user.otpExpires = undefined;
+    
     return user.save();
   },
+
 
   updateUserProfile: (userId, updates) => User.findByIdAndUpdate(
     userId,

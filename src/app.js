@@ -13,14 +13,14 @@ const app = express();
 
 // Middleware
 app.use(helmet());
-app.use(cors());
 app.use(morgan('dev'))
-// app.use(cors({
-//   origin: process.env.CLIENT_URL,
-//   credentials: true
-// }));
+app.use(cors({
+  origin: process.env.CLIENT_URL,
+  credentials: true
+}));
 app.use(express.json());
-app.use(cookieParser()); // Ensure cookieParser is defined
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/v1/auth', authRouter);
