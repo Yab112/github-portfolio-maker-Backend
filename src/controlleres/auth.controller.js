@@ -1,25 +1,22 @@
 import { authService } from "../services/auth.service.js";
 import { userService } from "../services/user.service.js";
+import passport from "passport";
 
 export const authController = {
   register: async (req, res) => {
     try {
-      console.log("user data from the frontend", req.body);
+      // Create user and send verification email
       const user = await userService.createUser(req.body);
       await userService.sendVerificationEmail(user);
 
+      
       res.cookie("userId", user._id, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production", 
-        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", 
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
         maxAge: 24 * 60 * 60 * 1000,
         path: "/",
       });
-
-      console.log(
-        "DEBUG: Cookie set on response:",
-        res.getHeaders()["set-cookie"]
-      );
 
       res.status(201).json({ message: "OTP sent to email" });
     } catch (error) {
@@ -29,15 +26,7 @@ export const authController = {
 
   verifyEmail: async (req, res) => {
     try {
-      console.log("DEBUG: Cookies received in request:", req.cookies);
-      console.log("DEBUG: Headers received:", req.headers);
-
-      if (!req) {
-        throw new Error("Request object is undefined.");
-      }
-
       if (!req.cookies || !req.cookies.userId) {
-        // console.log("DEBUG:",req)
         return res.status(400).json({ error: "User ID not found in cookies" });
       }
 
@@ -45,17 +34,21 @@ export const authController = {
         return res.status(400).json({ error: "OTP is missing" });
       }
 
-      const user = await userService.verifyEmail(
-        req.body.otp,
-        req.cookies.userId
-      );
+      // Verify the OTP and get the user
+      const user = await userService.verifyEmail(req.body.otp, req.cookies.userId);
 
+      // Generate access and refresh tokens
       const { accessToken, refreshToken } = authService.generateTokens(user);
 
-      console.log("Access Token:", accessToken);
-      console.log("Refresh Token:", refreshToken);
+      // Set refresh token and expiration time in the user record
+      const refreshTokenExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      user.refreshToken = refreshToken;
+      user.refreshTokenExpires = refreshTokenExpires;
+      await user.save();
 
+      // Set the cookies for access and refresh tokens
       authService.setAuthCookies(res, accessToken, refreshToken);
+
       res.json({ message: "Email verified and user logged in" });
     } catch (error) {
       console.error("DEBUG: Error in verifyEmail", error);
@@ -65,16 +58,16 @@ export const authController = {
 
   login: async (req, res) => {
     try {
+      // Authenticate the user by email and password
       const user = await authService.authenticateUser(req.body);
-      res.cookie("userId", user._id, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production", 
-        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", 
-        maxAge: 24 * 60 * 60 * 1000,
-        path: "/",
-      });
-      const otp = await userService.sendVerificationEmail(user);
-      res.json({ message: "OTP sent to email"});
+
+      // Generate and set the access and refresh tokens for the user
+      const { accessToken, refreshToken } = authService.generateTokens(user);
+
+      // Store the tokens in cookies
+      authService.setAuthCookies(res, accessToken, refreshToken);
+
+      res.json({ message: "User Logged in Successfully" });
     } catch (error) {
       res.status(401).json({ error: error.message });
     }
@@ -82,15 +75,20 @@ export const authController = {
 
   refreshToken: async (req, res) => {
     try {
-      const { newAccessToken } = await authService.refreshAccessToken(
-        req.cookies.refreshToken
-      );
-      authService.setAccessTokenCookie(res, newAccessToken);
+      // Check if refreshToken exists in cookies
+      if (!req.cookies.refreshToken) {
+        return res.status(400).json({ error: "No refresh token provided" });
+      }
+
+      const { newAccessToken } = await authService.refreshAccessToken(req.cookies.refreshToken);
+      authService.setAuthToeknForrefresh(res, newAccessToken);
       res.json({ message: "Token refreshed" });
     } catch (error) {
+      console.log("DEBUG:check the error in the refresh token", error);
       res.status(401).json({ error: error.message });
     }
   },
+
 
   logout: async (req, res) => {
     try {
@@ -101,18 +99,49 @@ export const authController = {
       res.status(500).json({ error: error.message });
     }
   },
+
   resendOTP: async (req, res) => {
     try {
       if (!req.cookies || !req.cookies.userId) {
-        // console.log("DEBUG:",req)
         return res.status(400).json({ error: "User ID not found in cookies" });
       }
+
       const user = await userService.getUserById(req.cookies.userId);
       if (!user) throw new Error("User not found");
+
+      // Resend OTP to email
       const otp = await userService.sendVerificationEmail(user);
       res.json({ message: "OTP resent to email" });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
   },
+
+
+  githubAuth : (req, res, next) => {
+    passport.authenticate("github")(req, res, next);
+  },
+
+  
+  githubCallback : async (req, res) => {
+    console.log("DEBUG: GitHub Authenticated User =>", req.user);
+    if (!req.user) {
+      return res.status(401).json({ message: "Authentication failed" });
+    }
+  
+    // Generate JWT tokens
+    
+    const { accessToken, refreshToken } = authService.generateTokens(req.user);
+  
+    // Save refresh token in DB with expiration
+    req.user.refreshToken = refreshToken;
+    req.user.refreshTokenExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    await req.user.save();
+  
+    // Set HTTP-only cookies
+    authService.setAuthCookies(res, accessToken, refreshToken);
+  
+    // Redirect to frontend dashboard
+    res.redirect("http://localhost:5173/dashboard");
+  }
 };

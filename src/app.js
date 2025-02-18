@@ -6,11 +6,12 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser'; 
 import authRouter from './routes/auth.routes.js';
 import userRouter from './routes/user.routes.js';
+import passport from 'passport';
 
 dotenv.config();
 
 const app = express();
-
+app.use(passport.initialize());
 // Middleware
 app.use(helmet());
 app.use(morgan('dev'))

@@ -26,7 +26,15 @@ const sendPasswordReset = (token) =>{
     return template(data)
 }
 
+const sendcredintial = (email,password)=>{
+    const template = loadTemplate("newusergihubauth.html");
+    const data = {email,password}
+    return template(data)
+}
+
+
 export default {
     otpTemplate,
-    sendPasswordReset
+    sendPasswordReset,
+    sendcredintial
 };

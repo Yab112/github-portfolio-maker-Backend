@@ -34,7 +34,6 @@ export const userService = {
     }
 
     const user = await User.findById(userId);
-    console.log("DEBUG user found yes yes yes *****",user)
     if (!user || !(await comparePassword(otp, user.otp))) {
       throw new Error('Invalid OTP');
     }

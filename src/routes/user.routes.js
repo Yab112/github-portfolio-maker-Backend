@@ -12,5 +12,6 @@ router.patch('/update-password', userController.updatePassword);
 router.delete('/delete', userController.deleteAccount);
 router.post('/forgot-password', userController.forgotPassword);
 router.post('/reset-password', userController.resetPassword);
+// router.get('/github/repos', userController.getUserRepos);
 
 export default router;

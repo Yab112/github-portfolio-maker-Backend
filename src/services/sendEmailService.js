@@ -16,7 +16,7 @@ const sendOTP = async (email, otp) => {
         from: process.env.EMAIL_USER,
         to: email,
         subject: 'Your OTP for Verification',
-        html: emailTemplates.otpTemplate(otp),  // Use the template
+        html: emailTemplates.otpTemplate(otp),  
     };
 
     try {
@@ -44,4 +44,20 @@ const sendPasswordReset = async (email,token)=>{
     }
 }
 
-export { sendOTP,sendPasswordReset };
+const sendCredintial = async (email,password) =>{
+    const mailOptions = {
+        from:process.env.EMAIL_USER,
+        to:email,
+        subject:"Change your Password",
+        html:emailTemplates.sendcredintial(email,password)
+    }
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log("reset password email send successfully")
+    } catch (error) {
+        console.log("Error sending reset password email",error)
+        
+    }
+}
+
+export { sendOTP,sendPasswordReset,sendCredintial };

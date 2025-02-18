@@ -3,6 +3,7 @@ import { generateHash,comparePassword } from "../utils/passwordUtils.js";
 
 const userSchema = new mongoose.Schema(
   {
+    Githubusername: {type:String,required:true,unique:true},
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     profilePic: { type: String, default: "" },
@@ -15,6 +16,7 @@ const userSchema = new mongoose.Schema(
     tokenExpiration: { type: Date },
     refreshToken: String,
     refreshTokenExpires: Date,
+    authProvider:String,
     failedLoginAttempts: {
       type: Number,
       default: 0,
