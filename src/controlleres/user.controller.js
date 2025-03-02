@@ -1,5 +1,7 @@
 import { userService } from "../services/user.service.js";
-import User from "../models/user.model.js";
+import {getChatStream} from "../services/groq.service.js"
+import { validateInput } from "../../helper/validators.js";
+import { handleStreamError } from "../../helper/errorHandler.js";
 
 export const userController = {
   getProfile: async (req, res) => {
@@ -59,38 +61,32 @@ export const userController = {
     }
   },
 
-  // getUserRepos: async (req, res) => {
-  //   try {
-  //     const userId = req.cookies.userId || req.user._id;
+  streamChatCompletion: async (req, res) => {
+    try {
+      const { prompt } = req.body;
 
-  //     if (!userId) {
-  //       return res.status(401).json({ error: "User not authenticated" });
-  //     }
+      // Validate input
+      const validationError = validateInput(prompt);
+      if (validationError) {
+        return res.status(400).json(validationError);
+      }
 
-  //     const user = await User.findById(userId);
-  //     if (!user) {
-  //       return res.status(404).json({ error: "User not found" });
-  //     }
+      // Set up streaming headers
+      res.setHeader("Content-Type", "text/plain");
+      res.setHeader("Transfer-Encoding", "chunked");
+      
+      // Get the stream from service
+      const stream = await getChatStream(prompt);
 
-  //     const { githubUsername } = user;
+      // Stream the response to client
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || "";
+        res.write(content);
+      }
 
-  //     // Fetch public repositories
-  //     const githubApiUrl = `https://api.github.com/users/${githubUsername}/repos`;
-  //     const response = await fetch(githubApiUrl);
-
-  //     // Extract repository names
-  //     console.log("DEBUG:check the result back",response)
-  //     const data = await response.json();
-  //     console.log("DEBUG: error  in the data",data)
-  //     const repoNames =data ? data.map((repo) => repo.name): [];
-
-
-  //     return res.json({ repos: repoNames });
-  //   } catch (error) {
-  //     console.error(error);
-  //     return res
-  //       .status(500)
-  //       .json({ error: "An error occurred while fetching repos" });
-  //   }
-  // },
+      res.end();
+    } catch (error) {
+      handleStreamError(error, res);
+    }
+  },
 };
