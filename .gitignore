@@ -25,6 +25,8 @@ pids/
 dist/
 build/
 out/
+src/node_modules/
+
 
 # Binaries
 *.exe
