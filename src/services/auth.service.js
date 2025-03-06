@@ -80,6 +80,7 @@ export const authService = {
 
 
   revokeTokens: async (user, accessToken) => {
+    console.log("DEBUG: Revoking tokens for user", user._id);
     await TokenDenylist.create({
       token: accessToken,
       expires: new Date(Date.now() + 15 * 60 * 1000),

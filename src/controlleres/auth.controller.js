@@ -92,6 +92,8 @@ export const authController = {
 
   logout: async (req, res) => {
     try {
+      console.log(req.user);
+      console.log(req.cookies.accessToken);
       await authService.revokeTokens(req.user, req.cookies.accessToken);
       authService.clearAuthCookies(res);
       res.json({ message: "Logged out successfully" });
@@ -142,6 +144,7 @@ export const authController = {
     authService.setAuthCookies(res, accessToken, refreshToken);
   
     // Redirect to frontend dashboard
+    console.log("DEBUG: Redirecting to frontend dashboard",req.user);
     res.redirect("http://localhost:5173/dashboard");
   }
 };

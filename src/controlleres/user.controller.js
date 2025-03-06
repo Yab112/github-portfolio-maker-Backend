@@ -12,7 +12,7 @@ export const userController = {
       res.status(500).json({ error: error.message });
     }
   },
-
+  
   updateProfile: async (req, res) => {
     try {
       const updatedUser = await userService.updateUserProfile(
@@ -89,4 +89,6 @@ export const userController = {
       handleStreamError(error, res);
     }
   },
+
+
 };

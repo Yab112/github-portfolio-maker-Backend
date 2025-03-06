@@ -12,12 +12,14 @@ passport.use(
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
       callbackURL: "http://localhost:3001/api/v1/auth/github/callback",
-      scope: ["user:email"],
+      scope: ["user:email","read:user"],
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        const email = profile.emails?.[0]?.value; 
+        const email = profile.emails?.[0]?.value;
         const username = profile.username;
+        // Get the profile picture from GitHub
+        const profilePic = profile.photos?.[0]?.value || '';
 
         if (!email) {
           return done(null, false, { message: "GitHub email is required." });
@@ -32,15 +34,19 @@ passport.use(
           user = new User({
             email,
             Githubusername: username,
+            profilePic, // Add profile picture
             password: hashedPassword,
             authProvider: "github",
-            isVerified:true,
+            isVerified: true,
           });
 
           await user.save();
-
-          // Send email with credentials
-          await sendCredintial(email,plainPassword);
+          await sendCredintial(email, plainPassword);
+        } else {
+          if (!user.profilePic || user.profilePic !== profilePic) {
+            user.profilePic = profilePic;
+            await user.save();
+          }
         }
 
         return done(null, user);

@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import TokenDenylist from '../models/TokenDenylist.model.js';
 import User from '../models/user.model.js';
+import passport from "passport";
 
 export const authMiddleware = {
   protect: async (req, res, next) => {
@@ -48,5 +49,30 @@ export const authMiddleware = {
       return res.status(403).json({ error: 'Permission denied' });
     }
     next();
+  }
+};
+
+
+export const authenticateUser = async (req, res, next) => {
+  try {
+      const accessToken = req.cookies.accessToken;
+
+      if (!accessToken) {
+          return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Verify token and get user
+      const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.id);
+
+      if (!user) {
+          return res.status(404).json({ message: "User not found" });
+      }
+
+      req.user = user;  // Attach user to request
+      next();
+  } catch (error) {
+      console.error("Authentication error:", error);
+      res.status(401).json({ message: "Invalid or expired token" });
   }
 };

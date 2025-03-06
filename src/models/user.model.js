@@ -8,7 +8,12 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     profilePic: { type: String, default: "" },
     bio: { type: String },
-    projects: [{ title: String, link: String, description: String }],
+    projects: [
+      {
+        key: { type: String, required: false,default:`Readme_file${Date().toString().split("T")[0]}` },
+        value: { type: String, required: true },
+      },
+    ],
     otp: { type: String },
     otpExpires: { type: Date },
     isVerified: { type: Boolean, default: false },

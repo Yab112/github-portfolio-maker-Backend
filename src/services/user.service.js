@@ -46,11 +46,33 @@ export const userService = {
   },
 
 
-  updateUserProfile: (userId, updates) => User.findByIdAndUpdate(
-    userId,
-    updates,
-    { new: true, runValidators: true }
-  ).select('-password -refreshToken'),
+  updateUserProfile: async (userId, updates) => {
+    try {
+      const user = await User.findById(userId);
+      if (!user) throw new Error("User not found");
+
+      if (updates.projects) {
+        const newProject = updates.projects;
+
+        if (newProject.value && !newProject.key) {
+          newProject.key = `Readme_file_${new Date().toString().split("T")[0]}`;
+        }
+        user.projects.push(newProject); 
+  
+        await user.save();
+      } else {
+        await User.findByIdAndUpdate(userId, updates, {
+          new: true,
+          runValidators: true,
+        });
+      }
+  
+      return user;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  },
+  
 
   updateUserPassword: async (userId, { currentPassword, newPassword }) => {
     const user = await User.findById(userId).select('+password');
