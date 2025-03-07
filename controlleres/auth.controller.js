@@ -5,11 +5,8 @@ import passport from "passport";
 export const authController = {
   register: async (req, res) => {
     try {
-      // Create user and send verification email
       const user = await userService.createUser(req.body);
       await userService.sendVerificationEmail(user);
-
-      
       res.cookie("userId", user._id, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -35,14 +32,19 @@ export const authController = {
       }
 
       // Verify the OTP and get the user
-      const user = await userService.verifyEmail(req.body.otp, req.cookies.userId);
+      const user = await userService.verifyEmail(
+        req.body.otp,
+        req.cookies.userId
+      );
 
       // Generate access and refresh tokens
       const { accessToken, refreshToken } = authService.generateTokens(user);
 
       // Set refresh token and expiration time in the user record
-      const refreshTokenExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-      user.refreshToken = refreshToken;
+      const refreshTokenExpires = new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000
+      );
+      user.refreshToken = refreshToken; 
       user.refreshTokenExpires = refreshTokenExpires;
       await user.save();
 
@@ -80,7 +82,9 @@ export const authController = {
         return res.status(400).json({ error: "No refresh token provided" });
       }
 
-      const { newAccessToken } = await authService.refreshAccessToken(req.cookies.refreshToken);
+      const { newAccessToken } = await authService.refreshAccessToken(
+        req.cookies.refreshToken
+      );
       authService.setAuthToeknForrefresh(res, newAccessToken);
       res.json({ message: "Token refreshed" });
     } catch (error) {
@@ -88,7 +92,6 @@ export const authController = {
       res.status(401).json({ error: error.message });
     }
   },
-
 
   logout: async (req, res) => {
     try {
@@ -119,31 +122,27 @@ export const authController = {
     }
   },
 
-
-  githubAuth : (req, res, next) => {
+  githubAuth: (req, res, next) => {
     passport.authenticate("github")(req, res, next);
   },
 
-  
-  githubCallback : async (req, res) => {
+  githubCallback: async (req, res) => {
     if (!req.user) {
       return res.status(401).json({ message: "Authentication failed" });
     }
-  
-    // Generate JWT tokens
-    
+
     const { accessToken, refreshToken } = authService.generateTokens(req.user);
-  
-    // Save refresh token in DB with expiration
+
     req.user.refreshToken = refreshToken;
-    req.user.refreshTokenExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    req.user.refreshTokenExpires = new Date(
+      Date.now() + 7 * 24 * 60 * 60 * 1000
+    );
     await req.user.save();
-  
-    // Set HTTP-only cookies
+
     authService.setAuthCookies(res, accessToken, refreshToken);
-  
-    // Redirect to frontend dashboard
-    console.log("DEBUG: Redirecting to frontend dashboard",req.user);
-    res.redirect("https://github-portfolio-maker-frontend.vercel.app/dashboard");
-  }
+
+    res.redirect(
+      "http://localhost:5173/dashboard"
+    );
+  },
 };

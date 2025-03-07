@@ -1,11 +1,12 @@
 import jwt from "jsonwebtoken";
 import { userService } from "./user.service.js";
-import tokenDenylistSchema  from "../models/TokenDenylist.model.js";
+import tokenDenylistSchema from "../models/TokenDenylist.model.js";
+
 export const authService = {
   generateTokens: (user) => {
     const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "15m",
-    }); 
+    });
 
     const refreshToken = jwt.sign(
       { id: user._id },
@@ -25,7 +26,7 @@ export const authService = {
     return user;
   },
 
-  setAuthToeknForrefresh : (res, accessToken) => {
+  setAuthToeknForrefresh: (res, accessToken) => {
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production" ? true : false,
@@ -33,7 +34,6 @@ export const authService = {
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
   },
-
 
   setAuthCookies: (res, accessToken, refreshToken) => {
     res.cookie("accessToken", accessToken, {
@@ -55,7 +55,7 @@ export const authService = {
     try {
       const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
       const user = await userService.getUserById(decoded.id);
-      
+
       if (!user || user.refreshToken !== refreshToken) {
         throw new Error("Invalid refresh token");
       }
@@ -71,11 +71,10 @@ export const authService = {
       if (error.name === "TokenExpiredError") {
         throw new Error("Refresh token expired, please log in again");
       }
-      
+
       throw new Error("Invalid refresh token");
     }
   },
-
 
   revokeTokens: async (user, accessToken) => {
     console.log("DEBUG: Revoking tokens for user", user._id);

@@ -15,13 +15,13 @@ router.post('/resend-otp', authController.resendOTP);
 router.get("/github", authController.githubAuth);
 router.post("/logout", authenticateUser, authController.logout);
 
-
 // Route to handle GitHub callback
 router.get(
   "/github/callback",
   passport.authenticate("github", { session: false }),
   authController.githubCallback
 );
+
   
   
 export default router;

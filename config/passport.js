@@ -1,7 +1,6 @@
 import passport from "passport";
 import { Strategy as GitHubStrategy } from "passport-github2";
-import bcrypt from "bcryptjs";
-import User from "../models/user.model.js"; 
+import User from "../models/user.model.js";
 import generateRandomPassword from "../utils/generatePassword.js";
 import { sendCredintial } from "../services/sendEmailService.js";
 import { generateHash } from "../utils/passwordUtils.js";
@@ -11,15 +10,14 @@ passport.use(
     {
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: "https://github-portfolio-maker-backend-ptun.vercel.app/api/v1/auth/github/callback",
-      scope: ["user:email","read:user"],
+      callbackURL: process.env.GITHUB_CALLBACK_URL,
+      scope: ["user:email", "read:user"],
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
         const email = profile.emails?.[0]?.value;
         const username = profile.username;
-        // Get the profile picture from GitHub
-        const profilePic = profile.photos?.[0]?.value || '';
+        const profilePic = profile.photos?.[0]?.value || "";
 
         if (!email) {
           return done(null, false, { message: "GitHub email is required." });
@@ -34,7 +32,7 @@ passport.use(
           user = new User({
             email,
             Githubusername: username,
-            profilePic, // Add profile picture
+            profilePic,
             password: hashedPassword,
             authProvider: "github",
             isVerified: true,

@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema(
     projects: [
       {
         key: { type: String, required: false,default:`Readme_file${Date().toString().split("T")[0]}` },
+        category : {type:String,required:true},
         value: { type: String, required: true },
       },
     ],
