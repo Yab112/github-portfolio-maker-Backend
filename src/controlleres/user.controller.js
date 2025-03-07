@@ -1,7 +1,7 @@
 import { userService } from "../services/user.service.js";
 import {getChatStream} from "../services/groq.service.js"
-import { validateInput } from "../../helper/validators.js";
-import { handleStreamError } from "../../helper/errorHandler.js";
+import { validateInput } from "../helper/validators.js";
+import { handleStreamError } from "../helper/errorHandler.js";
 
 export const userController = {
   getProfile: async (req, res) => {
