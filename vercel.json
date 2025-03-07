@@ -1,17 +1,10 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "src/**/*",
-      "use": "@vercel/node"
-    }
-  ],
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/src"
+      "destination": "/"
     }
   ],
   "buildCommand": "npm run build",
-  "installCommand": "npm install"
+  "outputDirectory": "dist"
 }
