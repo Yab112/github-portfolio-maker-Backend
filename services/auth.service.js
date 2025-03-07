@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import TokenDenylist from "../models/TokenDenylist.model.js";
-import { userService } from "../services/user.service.js";
+import { userService } from "./user.service.js";
 
 export const authService = {
   generateTokens: (user) => {
