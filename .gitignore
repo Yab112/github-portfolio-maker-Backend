@@ -67,3 +67,4 @@ docker-compose.override.yml
 
 # Bcrypt Example Files (if causing errors)
 node_modules/bcrypt/examples/
+.vercel
