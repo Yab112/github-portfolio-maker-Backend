@@ -126,7 +126,6 @@ export const authController = {
 
   
   githubCallback : async (req, res) => {
-    console.log("DEBUG: GitHub Authenticated User =>", req.user);
     if (!req.user) {
       return res.status(401).json({ message: "Authentication failed" });
     }

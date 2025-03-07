@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
 import TokenDenylist from '../models/TokenDenylist.model.js';
 import User from '../models/user.model.js';
-import passport from "passport";
 
 export const authMiddleware = {
   protect: async (req, res, next) => {

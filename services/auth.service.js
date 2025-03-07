@@ -23,7 +23,6 @@ export const authService = {
       throw new Error("Invalid credentials");
     }
     if (!user.isVerified) throw new Error("Email not verified");
-    console.log(user);
     return user;
   },
 
