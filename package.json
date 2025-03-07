@@ -8,9 +8,9 @@
     "test": "jest --no-experimental-vm-modules",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
-     "start": "node dist/server.js",
     "dev": "nodemon server.js",
-    "build": "npx babel src --out-dir dist --ignore 'node_modules/**'"
+    "start": "node dist/server.js", 
+    "build": "babel src --out-dir dist --copy-files"
   },
   "repository": {
     "type": "git",
