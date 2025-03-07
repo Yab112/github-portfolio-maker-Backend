@@ -1,11 +1,11 @@
 import jwt from "jsonwebtoken";
 import { userService } from "./user.service.js";
-import TokenDenylistModel from "../models/TokenDenylist.model.js";
+import tokenDenylistSchema  from "../models/TokenDenylist.model.js";
 export const authService = {
   generateTokens: (user) => {
     const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "15m",
-    });
+    }); 
 
     const refreshToken = jwt.sign(
       { id: user._id },
@@ -79,7 +79,7 @@ export const authService = {
 
   revokeTokens: async (user, accessToken) => {
     console.log("DEBUG: Revoking tokens for user", user._id);
-    await TokenDenylistModel.create({
+    await tokenDenylistSchema.create({
       token: accessToken,
       expires: new Date(Date.now() + 15 * 60 * 1000),
     });
