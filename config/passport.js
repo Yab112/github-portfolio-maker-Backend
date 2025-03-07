@@ -11,7 +11,7 @@ passport.use(
     {
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: "http://localhost:3001/api/v1/auth/github/callback",
+      callbackURL: "https://github-portfolio-maker-backend-ptun.vercel.app/api/v1/auth/github/callback",
       scope: ["user:email","read:user"],
     },
     async (accessToken, refreshToken, profile, done) => {

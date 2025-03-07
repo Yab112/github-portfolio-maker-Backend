@@ -144,6 +144,6 @@ export const authController = {
   
     // Redirect to frontend dashboard
     console.log("DEBUG: Redirecting to frontend dashboard",req.user);
-    res.redirect("http://localhost:5173/dashboard");
+    res.redirect("https://github-portfolio-maker-frontend.vercel.app/dashboard");
   }
 };
