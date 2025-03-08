@@ -44,7 +44,7 @@ export const authController = {
       const refreshTokenExpires = new Date(
         Date.now() + 7 * 24 * 60 * 60 * 1000
       );
-      user.refreshToken = refreshToken; 
+      user.refreshToken = refreshToken;
       user.refreshTokenExpires = refreshTokenExpires;
       await user.save();
 
@@ -85,7 +85,7 @@ export const authController = {
       const { newAccessToken } = await authService.refreshAccessToken(
         req.cookies.refreshToken
       );
-      authService.setAuthToeknForrefresh(res, newAccessToken);
+      authService.setAuthCookies(res, newAccessToken, req.cookies.refreshToken);
       res.json({ message: "Token refreshed" });
     } catch (error) {
       console.log("DEBUG:check the error in the refresh token", error);
