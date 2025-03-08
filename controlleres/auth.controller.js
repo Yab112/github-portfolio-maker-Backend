@@ -142,7 +142,7 @@ export const authController = {
     authService.setAuthCookies(res, accessToken, refreshToken);
 
     res.redirect(
-      "http://localhost:5173/dashboard"
+      "https://github-portfolio-maker-frontend.vercel.app/dashboard"
     );
   },
 };
